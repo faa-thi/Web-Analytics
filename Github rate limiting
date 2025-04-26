@@ -1,0 +1,36 @@
+#GITHUB RATE LIMITING
+
+from github import Github
+import time
+
+# Function to handle rate limiting
+def handle_rate_limit(github_client):
+    # Get the rate limit status
+    rate_limit = github_client.get_rate_limit()
+
+    # GitHub rate limit object has 'core' attribute that contains the rate limit information
+    remaining = rate_limit.core.remaining
+    reset_time = rate_limit.core.reset
+
+    # Print current rate limit status for debugging
+    print(f"Remaining requests: {remaining}")
+    print(f"Rate limit resets at: {reset_time}")
+
+    if remaining == 0:
+        # Calculate how long to wait before making the next request
+        reset_timestamp = reset_time.timestamp()  # When the rate limit will reset
+        current_timestamp = time.time()  # Current time
+        wait_time = reset_timestamp - current_timestamp
+        print(f"Rate limit reached. Waiting for {wait_time:.2f} seconds until reset...")
+        time.sleep(wait_time)
+    else:
+        print("Rate limit is not exceeded. You can continue making requests.")
+
+# Example usage:
+# Authenticate with GitHub (replace with your personal access token)
+g = Github("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")
+
+# Check rate limit before making any API calls
+handle_rate_limit(g)
+
+# Now you can safely make other API calls
