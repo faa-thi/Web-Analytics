@@ -1,0 +1,56 @@
+#GITHUB PAGINATION
+
+from github import Github
+import time
+import datetime
+
+print("Script started.")
+
+try:
+    g = Github("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")
+    print("Authentication successful.")
+except Exception as e:
+    print(f"Authentication failed: {e}")
+    exit()
+
+try:
+    repo = g.get_repo("sveltejs/kit")
+    print(f"Repository found: {repo.name}")
+except Exception as e:
+    print(f"Error fetching repository: {e}")
+    exit()
+
+rate_limit = g.get_rate_limit().core
+print(f"Rate limit remaining: {rate_limit.remaining}")
+
+contributors = repo.get_contributors()
+
+# Convert PaginatedList to a list to use len()
+contributors_list = list(contributors)
+print(f"Found {len(contributors_list)} contributors.")
+
+# Check if contributors list is empty
+if not contributors_list:
+    print("No contributors found for this repository.")
+else:
+    count = 0
+    for contributor in contributors_list:
+        print(f"{contributor.login} ({contributor.contributions} contributions)")
+        count += 1
+        if count >= 100:
+            break
+
+        # Check rate limit status
+        rate_limit = g.get_rate_limit().core
+        print(f"Rate limit remaining: {rate_limit.remaining}")  # Debugging output for rate limit
+
+        # If rate limit is low, sleep until reset
+        if rate_limit.remaining < 10:
+            reset_time = rate_limit.reset
+            wait_time = (reset_time - datetime.datetime.now(datetime.timezone.utc)).total_seconds()
+            print(f"Rate limit approaching. Sleeping for {wait_time:.2f} seconds...")
+            time.sleep(wait_time + 1)  # Sleep a little extra to be safe
+
+    print(f"Total contributors printed: {count}")
+
+
