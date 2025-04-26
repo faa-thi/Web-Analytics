@@ -1,0 +1,17 @@
+#MINING GITHUB
+
+from github import Github
+# Authenticate
+g = Github("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")  #generate personal access token in GitHub 
+
+# Get a specific repository
+repo = g.get_repo("learntocloud/learn-to-cloud") #mining this github id
+
+# Print repository information
+print(f"Repository name: {repo.name}")
+print(f"Description: {repo.description}")
+print(f"Stars: {repo.stargazers_count}")
+
+# Print contributors
+for contributor in repo.get_contributors():
+    print(f"{contributor.login} ({contributor.contributions} contributions)")
